@@ -76,7 +76,9 @@ class WebSocketTransportStream implements GrpcTransportStream {
       for (var i = 0; i < message.length; i++) {
         listBuffer.add(message[i]);
       }
-      _incomingProcessor.add(Uint8List.fromList(listBuffer).buffer);
+      if (!_incomingProcessor.isClosed) {
+        _incomingProcessor.add(Uint8List.fromList(listBuffer).buffer);
+      }
     }, onDone: _onDone(this), onError: _onError);
   }
 
