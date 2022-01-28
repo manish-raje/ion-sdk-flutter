@@ -134,11 +134,12 @@ class Room extends Service {
 
   void leave(String uid) => _sig?.leave(uid);
 
-  void message(Message message) => _sig?.sendMessage(message);
+  void message(Message message, String sid) => _sig?.sendMessage(message, sid);
 
   @override
   void close() {
     _sig?.close();
+    _sig = null;
   }
 }
 
@@ -211,7 +212,7 @@ class _RoomGRPCClient extends EventEmitter {
     once('leave-reply', handler);
   }
 
-  void sendMessage(Message msg) async {
+  void sendMessage(Message msg, String sid) async {
     var request = pb.Request()
       ..sendMessage = pb.SendMessageRequest(
           message: pb.Message(
@@ -219,7 +220,7 @@ class _RoomGRPCClient extends EventEmitter {
         to: msg.to,
         type: msg.type,
         payload: msg.payload,
-      ));
+      ), sid: sid);
     _requestStream.add(request);
   }
 
