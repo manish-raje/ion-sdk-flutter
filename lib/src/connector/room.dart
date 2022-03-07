@@ -171,9 +171,9 @@ class _RoomGRPCClient extends EventEmitter {
         .then((headers) => connector.onHeaders(service, headers));
   }
 
-  void close() {
-    _requestStream.close();
-    _replyStream.cancel();
+  Future<void> close() async {
+    await _requestStream.close();
+    await _replyStream.cancel();
   }
 
   Future<JoinResult>? join({required Peer peer, String? password}) async {
