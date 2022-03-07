@@ -132,7 +132,7 @@ class Room extends Service {
     _sig?.join(peer: peer, password: password);
   }
 
-  void leave(String uid) => _sig?.leave(uid);
+  Future<void> leave(String uid) async => await _sig?.leave(uid);
 
   void message(Message message, String sid) => _sig?.sendMessage(message, sid);
 
