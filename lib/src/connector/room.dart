@@ -217,10 +217,11 @@ class _RoomGRPCClient extends EventEmitter {
       ..sendMessage = pb.SendMessageRequest(
           message: pb.Message(
         from: msg.from,
-        to: msg.to,
-        type: msg.type,
-        payload: msg.payload,
-      ), sid: sid);
+            to: msg.to,
+            type: msg.type,
+            payload: msg.payload,
+          ),
+          sid: sid);
     _requestStream.add(request);
   }
 
