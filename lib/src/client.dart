@@ -126,11 +126,19 @@ class Client {
     await stream.publish(transports[RolePub]!.pc!);
   }
 
-  void close() {
-    transports.forEach((key, element) {
-      element.pc!.close();
-      element.pc!.dispose();
-    });
+  Future<void> closepeerconnection(RTCPeerConnection pc) async {
+    await pc.close();
+    await pc.dispose();
+  }
+
+  Future<void> closeTransport(Transport transport) async {
+    return closepeerconnection(transport.pc!);
+  }
+
+  Future<void> close() async {
+    await Future.wait(
+        transports.values.map((element) => closeTransport(element)));
+
     signal.close();
   }
 

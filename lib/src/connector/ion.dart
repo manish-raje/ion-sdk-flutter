@@ -7,7 +7,7 @@ abstract class Service {
   late String name;
   Future<void> connect();
   bool connected = false;
-  void close();
+  Future<void> close();
 }
 
 class Connector {

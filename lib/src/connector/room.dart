@@ -137,8 +137,8 @@ class Room extends Service {
   void message(Message message, String sid) => _sig?.sendMessage(message, sid);
 
   @override
-  void close() {
-    _sig?.close();
+  Future<void> close() async {
+    await _sig?.close();
     _sig = null;
   }
 }
@@ -216,7 +216,7 @@ class _RoomGRPCClient extends EventEmitter {
     var request = pb.Request()
       ..sendMessage = pb.SendMessageRequest(
           message: pb.Message(
-        from: msg.from,
+            from: msg.from,
             to: msg.to,
             type: msg.type,
             payload: msg.payload,

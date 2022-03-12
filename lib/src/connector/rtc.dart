@@ -159,8 +159,8 @@ class RTC extends Service {
   }
 
   @override
-  void close() {
-    _client.close();
+  Future<void> close() async {
+    await _client.close();
     _sig = null;
   }
 }
