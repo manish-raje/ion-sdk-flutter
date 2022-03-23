@@ -17,6 +17,7 @@ class WebSocketTransportStream implements GrpcTransportStream {
   final StreamController<GrpcMessage> _incomingMessages = StreamController();
   final StreamController<List<int>> _outgoingMessages = StreamController();
   late HtmlWebSocketChannel _channel;
+  late StreamSubscription _channelStreamSubcription;
   final Map<String, String> _metadata;
   final Completer<bool> _firstMessageReceived = Completer();
   final Uri _uri;
@@ -71,7 +72,7 @@ class WebSocketTransportStream implements GrpcTransportStream {
       _channel.sink.add(frame);
     });
 
-    _channel.stream.listen((message) async {
+    _channelStreamSubcription = _channel.stream.listen((message) {
       final listBuffer = <int>[];
       for (var i = 0; i < message.length; i++) {
         listBuffer.add(message[i]);
@@ -99,13 +100,17 @@ class WebSocketTransportStream implements GrpcTransportStream {
       _firstMessageReceived.complete(false);
     }
     _incomingProcessor.close();
+    _channelStreamSubcription.cancel();
+    _channel.sink.close();
     _outgoingMessages.close();
     _onDone(this);
   }
 
   @override
   Future<void> terminate() async {
-    _channel.sink.add(finishSendFrame);
+    if (!_outgoingMessages.isClosed) {
+      _channel.sink.add(finishSendFrame);
+    }
     _close();
   }
 }

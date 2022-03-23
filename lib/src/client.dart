@@ -132,12 +132,14 @@ class Client {
   }
 
   Future<void> closeTransport(Transport transport) async {
-    return closepeerconnection(transport.pc!);
+    await closepeerconnection(transport.pc!);
+    return Future.value();
   }
 
   Future<void> close() async {
-    await Future.wait(
-        transports.values.map((element) => closeTransport(element)));
+    await Future.wait(transports.values.map((element) {
+      return closeTransport(element);
+    }));
 
     signal.close();
   }
