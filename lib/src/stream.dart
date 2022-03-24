@@ -268,7 +268,7 @@ class LocalStream {
       {required MediaStreamTrack next, MediaStreamTrack? prev}) async {
     await _stream.addTrack(next);
     // If published, replace published track with track from new device
-    if (prev != null && prev.enabled) {
+    if (prev != null) {
       await _stream.removeTrack(prev);
       await prev.stop();
       if (_pc != null) {
@@ -282,8 +282,6 @@ class LocalStream {
                 }));
       }
     } else {
-      await _stream.addTrack(next);
-
       if (_pc != null) {
         publishTrack(track: next);
       }
