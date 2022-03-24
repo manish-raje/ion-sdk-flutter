@@ -130,9 +130,9 @@ class LocalStream {
   }
 
   static dynamic computeAudioConstraints(Constraints constraints) {
-    if (constraints.audio != null) {
-      return true;
-    } else if (constraints.video! && constraints.resolution != null) {
+    if (constraints.audio != null && constraints.deviceId == null) {
+      return constraints.audio!;
+    } else if (constraints.audio != null && constraints.deviceId != null) {
       return {'deviceId': constraints.deviceId};
     }
     return false;
