@@ -132,6 +132,10 @@ class Room extends Service {
     _sig?.join(peer: peer, password: password);
   }
 
+  Future<void> updatePeer({required Peer peer}) async {
+    await _sig?.updatePeer(peer: peer);
+  }
+
   Future<void> leave(String uid) async => await _sig?.leave(uid);
 
   void message(Message message, String sid) => _sig?.sendMessage(message, sid);
@@ -147,14 +151,20 @@ class _RoomGRPCClient extends EventEmitter {
   Service service;
   Connector connector;
   _RoomGRPCClient(this.connector, this.service) {
-    _client = room.RoomSignalClient(connector.grpcClientChannel(),
-        options: connector.callOptions());
+    _clientChannel = connector.grpcClientChannel();
+    _callOptions = connector.callOptions();
+    _client = room.RoomSignalClient(_clientChannel, options: _callOptions);
+    _serviceClient =
+        room.RoomServiceClient(_clientChannel, options: _callOptions);
     _requestStream = StreamController<pb.Request>();
   }
 
   late room.RoomSignalClient _client;
+  late room.RoomServiceClient _serviceClient;
   late StreamController<pb.Request> _requestStream;
   late grpc.ResponseStream<pb.Reply> _replyStream;
+  late grpc.ClientChannel _clientChannel;
+  late grpc.CallOptions _callOptions;
 
   void connect() {
     _replyStream = _client.signal(_requestStream.stream);
@@ -210,6 +220,25 @@ class _RoomGRPCClient extends EventEmitter {
       completer.complete();
     };
     once('leave-reply', handler);
+  }
+
+  Future<void> updatePeer({required Peer peer}) async {
+    var request = pb.UpdatePeerRequest(
+        peer: pb.Peer()
+          ..uid = peer.uid
+          ..sid = peer.sid
+          ..displayName = peer.displayname
+          ..extraInfo = peer.extrainfo
+          ..role = pb.Role.values[peer.role.index]
+          ..protocol = pb.Protocol.values[peer.protocol.index]
+          ..avatar = peer.avatar
+          ..vendor = peer.vendor
+          ..direction = pb.Peer_Direction.values[peer.direction.index]);
+    var reply = await _serviceClient.updatePeer(request);
+    if (reply.success) {
+    } else {
+      print(':::peer update failed');
+    }
   }
 
   void sendMessage(Message msg, String sid) async {
